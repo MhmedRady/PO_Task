@@ -1,9 +1,23 @@
-﻿namespace PO_Task.Domain.Common;
+﻿using PO_Task.Domain.BuildingBlocks;
 
-public sealed record Money(
-    decimal Amount,
-    Currency Currency)
+namespace PO_Task.Domain.Common;
+
+public sealed record Money
 {
+    public decimal Amount { get; init; }
+    public Currency Currency { get; init; }
+
+    private Money() { } // For EF Core
+
+    public Money(decimal amount, Currency currency)
+    {
+        if (amount < 0)
+            throw new ArgumentException("Amount cannot be negative.");
+
+        Amount = amount;
+        Currency = currency ?? throw new ArgumentNullException(nameof(currency));
+    }
+
     public static Money operator +(
         Money first,
         Money second)
@@ -36,4 +50,12 @@ public sealed record Money(
     {
         return this == Zero(Currency);
     }
+
+    public Money Add(Money other)
+{
+    if (Currency != other.Currency)
+        throw new InvalidOperationException("Cannot add Money with different currencies.");
+
+    return new Money(Amount + other.Amount, Currency);
+}
 }

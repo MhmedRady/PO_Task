@@ -9,9 +9,12 @@ public sealed record Currency
 
     public static readonly IReadOnlyCollection<Currency> All = new[] { Egp, Usd, Eur };
 
+    private Currency() { }
     private Currency(string code)
     {
-        Code = code;
+        Code = !string.IsNullOrWhiteSpace(code) 
+            ? code
+            : throw new ArgumentException("Currency code cannot be null or empty.");
     }
 
     public string Code { get; init; }

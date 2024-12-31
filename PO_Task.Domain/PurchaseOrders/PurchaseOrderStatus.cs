@@ -5,6 +5,7 @@ namespace PO_Task.Domain.PurchaseOrders;
 
 public sealed class PurchaseOrderStatus : SmartEnum<PurchaseOrderStatus>, IStatusTransition<PurchaseOrderStatus>
 {
+
     private PurchaseOrderStatus(
         string name,
         int value) : base(
@@ -74,6 +75,8 @@ public sealed class PurchaseOrderStatus : SmartEnum<PurchaseOrderStatus>, IStatu
     {
         RoleNames = roleNames;
     }
+
+    
 
     public List<string> RoleNames { get; }
 

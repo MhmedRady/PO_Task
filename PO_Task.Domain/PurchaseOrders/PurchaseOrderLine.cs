@@ -3,7 +3,7 @@ using PO_Task.Domain.Common;
 using PO_Task.Domain.Items;
 using PO_Task.Domain.PurchaseOrders;
 
-namespace PO_Task.Domain.Orders;
+namespace PO_Task.Domain.PurchaseOrders;
 
 public sealed class PurchaseOrderLine : Entity<PurchaseOrderLineId>
 {
@@ -30,7 +30,7 @@ public sealed class PurchaseOrderLine : Entity<PurchaseOrderLineId>
     public decimal Quantity { get; private set; }
     public decimal BasketQuantity { get; private set; }
 
-    public Item Item { get; set; }
+    public PurchaseOrderItem Item { get; set; }
     public string UnitName { get; }
     public Money Total { get; }
     public static PurchaseOrderLine Create(

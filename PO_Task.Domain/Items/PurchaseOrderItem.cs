@@ -4,53 +4,54 @@ using PO_Task.Domain.PurchaseOrders;
 
 namespace PO_Task.Domain.Items;
 
-public sealed class Item : Entity<ItemId>, IAggregateRoot, ISoftDelete
+public sealed class PurchaseOrderItem : Entity<ItemId>, IAggregateRoot, ISoftDelete
 {
 
-    private Item(
+    private PurchaseOrderItem(
         ItemId id,
+        PurchaseOrderId purchaseOrderId,
         string goodCode,
         Money price,
         decimal quantity,
         int serialNumber
         ) : base(id)
     {
+        PurchaseOrderId = purchaseOrderId;
         GoodCode = goodCode;
         Price = price;
         Quantity = quantity;
         SerialNumber = serialNumber;
     }
 
-    private Item()
+    private PurchaseOrderItem()
     {
     }
 
     public string GoodCode { get; private set; }
     public int SerialNumber { get; private set; }
 
-    public PurchaseOrderId OrderId { get; private set; }
+    public PurchaseOrderId PurchaseOrderId { get; private set; }
     public Money Price { get; private set; }
     public decimal Quantity { get; private set; }
 
-    public bool IsDeleted { get; set; }
     public DateTimeOffset? DeletedAt { get; set; }
 
 
     public void MarkAsDeleted()
     {
-        IsDeleted = true;
         DeletedAt = DateTimeOffset.UtcNow;
     }
 
-    public static Item CreateInstance(
-        
+    public static PurchaseOrderItem CreateInstance(
+        PurchaseOrderId purchaseOrderId,
         string goodCode,
         Money price,
         decimal quantity,
         int serialNumber)
     {
-        return new Item(
+        return new PurchaseOrderItem(
             ItemId.CreateUnique(),
+            purchaseOrderId,
             goodCode,
             price,
             quantity,

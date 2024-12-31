@@ -1,6 +1,6 @@
 using PO_Task.Domain.BuildingBlocks;
 
-namespace PO_Task.Domain.Orders;
+namespace PO_Task.Domain.PurchaseOrders;
 
 public sealed record PurchaseOrderLineId : ValueObject
 {
