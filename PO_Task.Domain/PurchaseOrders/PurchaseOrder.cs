@@ -15,13 +15,13 @@ public class PurchaseOrder : Entity<PurchaseOrderId>, IAggregateRoot
 
     private PurchaseOrder() { }
 
-    private PurchaseOrder(PurchaseOrderId orderId, UserId buyerId)
+    private PurchaseOrder(PurchaseOrderId orderId, UserId purchaserId)
     {
         Id = orderId;
-        BuyerId = buyerId;
+        PurchaserId = purchaserId;
     }
 
-    public UserId BuyerId { get; private set; }
+    public UserId PurchaserId { get; private set; }
     public string PoNumber { get; private set; }
     public DateTime CreatedAt { get; private set; }
     public Money TotalAmount { get; private set; }

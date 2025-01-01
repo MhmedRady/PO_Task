@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using PO_Task.Domain.Common;
 using PO_Task.Domain.Items;
 using PO_Task.Domain.PurchaseOrders;
+using PO_Task.Domain.Users;
 
 namespace PO_Task.Infrastructure.Configurations
 {
@@ -16,6 +17,21 @@ namespace PO_Task.Infrastructure.Configurations
         public static void ConfigureOrder(EntityTypeBuilder<PurchaseOrder> builder)
         {
             builder.ToTable("PurchaseOrders", "PO");
+
+            builder.HasKey(i => i.Id);
+
+            builder.Property(i => i.Id)
+              .ValueGeneratedNever()
+              .HasConversion(
+                  id => id.Value,
+                  value => PurchaseOrderId.Create(value));
+
+            builder.HasIndex(o => o.PurchaserId);
+            builder.Property(i => i.PurchaserId)
+                    .ValueGeneratedNever() 
+                    .HasConversion(
+                        id => id.Value,
+                        value => UserId.Create(value));
 
             // Unique index for PoNumber
             builder.HasIndex(po => po.PoNumber).IsUnique();
@@ -58,10 +74,20 @@ namespace PO_Task.Infrastructure.Configurations
                   .ValueGeneratedNever()
                   .HasConversion(
                       id => id.Value,
-                      value => ItemId.Create(value));
+                      value => ItemId.Create(value)
+                    );
+
+
 
                 // Index on PurchaseOrderId
                 ol.HasIndex(l => l.PurchaseOrderId);
+
+                ol.Property(i => i.PurchaseOrderId)
+                    .ValueGeneratedNever()
+                    .HasConversion(
+                        purchaseOrderId => purchaseOrderId.Value,
+                        value => PurchaseOrderId.Create(value)
+                    );
 
                 // Relationship to PurchaseOrder
                 ol.HasOne<PurchaseOrder>()

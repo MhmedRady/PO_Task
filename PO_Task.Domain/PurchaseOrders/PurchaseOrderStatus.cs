@@ -6,14 +6,6 @@ namespace PO_Task.Domain.PurchaseOrders;
 public sealed class PurchaseOrderStatus : SmartEnum<PurchaseOrderStatus>, IStatusTransition<PurchaseOrderStatus>
 {
 
-    private PurchaseOrderStatus(
-        string name,
-        int value) : base(
-        name,
-        value)
-    {
-    }
-
     public static readonly PurchaseOrderStatus Ordered = new(
         nameof(Ordered),
         100,
@@ -66,18 +58,15 @@ public sealed class PurchaseOrderStatus : SmartEnum<PurchaseOrderStatus>, IStatu
         { Completed, [] }
     };
 
-    private PurchaseOrderStatus(
-        string name,
-        int value,
-        List<string> roleNames) : base(
-        name,
-        value)
+    private PurchaseOrderStatus() : base(default!, default)
+    {
+        RoleNames = new List<string>();
+    }
+
+    private PurchaseOrderStatus(string name, int value, List<string> roleNames) : base(name, value)
     {
         RoleNames = roleNames;
     }
-
-    
-
     public List<string> RoleNames { get; }
 
     public bool CanTransitionTo(PurchaseOrderStatus newStatus)

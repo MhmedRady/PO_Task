@@ -7,13 +7,23 @@ namespace Aswaq.Infrastructure.Configurations;
 
 internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
 {
+
     public void Configure(EntityTypeBuilder<User> builder)
     {
+        builder.HasKey(x => x.Id);
+
+        builder.Property(i => i.Id)
+            .ValueGeneratedNever() // UserId is a value object, not auto-generated
+            .HasConversion(
+                id => id.Value, // Convert UserId to Guid for storage
+                value => UserId.Create(value));
+
         builder.OwnsOne(u =>
             u.Profile, profileBuilder =>
         {
             profileBuilder.ToTable("user_profile");
-            profileBuilder.WithOwner().HasForeignKey("user_id");
+
+
             profileBuilder.Property(p => p.FirstName)
                 .HasMaxLength(200)
                 .HasConversion(firstName => firstName.Value, value => new FirstName(value));

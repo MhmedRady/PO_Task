@@ -11,13 +11,11 @@ public sealed record UserProfile : ValueObject
         Email = email;
     }
 
-    private UserProfile()
-    {
-    }
+    private UserProfile() {}
+
     public FirstName FirstName { get; private set; }
     public LastName LastName { get; private set; }
     public Email Email { get; private set; }
-
 
     public static UserProfile Create(FirstName firstName, LastName lastName, Email email)
     {

@@ -7,7 +7,7 @@ public sealed record Money
     public decimal Amount { get; init; }
     public Currency Currency { get; init; }
 
-    private Money() { } // For EF Core
+    private Money() { } 
 
     public Money(decimal amount, Currency currency)
     {
