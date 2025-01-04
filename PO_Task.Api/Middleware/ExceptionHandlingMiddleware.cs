@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PO_Task.Application.Exceptions;
 
-namespace Aswaq.Api.Middleware;
+namespace PO_Task.Api.Middleware;
 
 internal sealed class ExceptionHandlingMiddleware
 {

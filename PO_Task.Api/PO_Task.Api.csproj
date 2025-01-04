@@ -17,12 +17,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controllers\" />
+    <ProjectReference Include="..\PO_Task.Application\PO_Task.Application.csproj" />
+    <ProjectReference Include="..\PO_Task.Infrastructure\PO_Task.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\PO_Task.Application\PO_Task.Application.csproj" />
-    <ProjectReference Include="..\PO_Task.Infrastructure\PO_Task.Infrastructure.csproj" />
+    <Folder Include="Controllers\" />
   </ItemGroup>
 
 </Project>

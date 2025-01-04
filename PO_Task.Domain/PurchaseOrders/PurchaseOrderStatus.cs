@@ -26,11 +26,6 @@ public sealed class PurchaseOrderStatus : SmartEnum<PurchaseOrderStatus>, IStatu
         200,
         ["Registered"]);
 
-    public static readonly PurchaseOrderStatus ShipmentsPartiallyPrepared = new(
-        nameof(ShipmentsPartiallyPrepared),
-        210,
-        ["Registered"]);
-
     public static readonly PurchaseOrderStatus ShipmentsIsShipped = new(
         nameof(ShipmentsIsShipped),
         220,
@@ -51,7 +46,6 @@ public sealed class PurchaseOrderStatus : SmartEnum<PurchaseOrderStatus>, IStatu
         },
         {
             ShipmentsInPreparation, [
-                ShipmentsPartiallyPrepared,
                 ShipmentsIsShipped,
             ]
         },
@@ -83,7 +77,6 @@ public sealed class PurchaseOrderStatus : SmartEnum<PurchaseOrderStatus>, IStatu
             Approved,
 
             ShipmentsInPreparation,
-            ShipmentsPartiallyPrepared,
             ShipmentsIsShipped,
 
             Completed

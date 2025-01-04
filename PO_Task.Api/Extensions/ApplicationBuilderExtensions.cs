@@ -1,9 +1,9 @@
-﻿using Aswaq.Api.Middleware;
-using Aswaq.Infrastructure;
+﻿using PO_Task.Api.Middleware;
 using Microsoft.EntityFrameworkCore;
 using PO_Task.Infrastructure;
+using PO_Task.Api.Middleware;
 
-namespace Aswaq.Api.Extensions;
+namespace PO_Task.Api.Extensions;
 
 internal static class ApplicationBuilderExtensions
 {

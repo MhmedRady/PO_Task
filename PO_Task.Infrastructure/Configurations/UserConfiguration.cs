@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using PO_Task.Domain.Users;
 
-namespace Aswaq.Infrastructure.Configurations;
+namespace PO_Task.Infrastructure.Configurations;
 
 internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
 {

@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Primitives;
 using Serilog.Context;
 
-namespace Aswaq.Api.Middleware;
+namespace PO_Task.Api.Middleware;
 
 internal sealed class RequestContextLoggingMiddleware(RequestDelegate next)
 {
