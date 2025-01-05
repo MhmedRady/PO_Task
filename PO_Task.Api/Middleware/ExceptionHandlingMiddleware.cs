@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using PO_Task.Application.Exceptions;
+using PO_Task.Domain.BuildingBlocks;
 
 namespace PO_Task.Api.Middleware;
 
@@ -54,18 +55,32 @@ internal sealed class ExceptionHandlingMiddleware
     {
         return exception switch
         {
-            ValidationException validationException => new ExceptionDetails(
-                StatusCodes.Status400BadRequest,
-                "ValidationFailure",
-                "Validation error",
-                "One or more validation errors has occurred",
+            ValidationException validationException => 
+                new ExceptionDetails(
+                    StatusCodes.Status400BadRequest,
+                    "ValidationFailure",
+                    "Validation error",
+                    "One or more validation errors has occurred",
                 validationException.Errors),
-            
+            ApplicationFlowException applicationFlowException =>
+                new ExceptionDetails(
+                    StatusCodes.Status406NotAcceptable,
+                    "ApplicationFlowError",
+                    "Application flow error",
+                    "An error has occurred during the application flow",
+                applicationFlowException.Errors),
+            BusinessRuleException businessRuleValidationException => 
+                new ExceptionDetails(
+                    StatusCodes.Status400BadRequest,
+                    "BusinessRuleValidationFailure",
+                    "Business rule validation error",
+                    "a business rule validation errors has occurred",
+                [businessRuleValidationException.Errors]),
             _ => new ExceptionDetails(
                 StatusCodes.Status500InternalServerError,
                 "ServerError",
-                "Server error",
                 "An unexpected error has occurred",
+                exception.Message,
                 null)
         };
     }

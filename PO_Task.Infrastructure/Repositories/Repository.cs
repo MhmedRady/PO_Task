@@ -1,5 +1,8 @@
 ﻿using PO_Task.Domain.BuildingBlocks;
 using Microsoft.EntityFrameworkCore;
+using System.Threading;
+using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace PO_Task.Infrastructure.Repositories;
 
@@ -16,14 +19,18 @@ internal abstract class Repository<T, TId> where T : Entity<TId> where TId : not
         TId id,
         CancellationToken cancellationToken = default)
     {
-        return await DbContext
-            .Set<T>()
-            .FirstOrDefaultAsync(entity => entity.Id.Equals(id), cancellationToken);
+        return await GetBy(entity => entity.Id.Equals(id)).FirstOrDefaultAsync(cancellationToken);
     }
 
-    public virtual void Add(T entity)
+    public IQueryable<T> GetBy(Expression<Func<T, bool>> expression)
     {
-        DbContext.Add(entity);
+        return DbContext
+        .Set<T>().Where(expression);
+    }
+
+    public virtual async Task AddAsync(T entity)
+    {
+       await DbContext.AddAsync(entity);
     }
 
     public virtual void Update(T entity)
@@ -34,5 +41,10 @@ internal abstract class Repository<T, TId> where T : Entity<TId> where TId : not
     public virtual void Delete(T entity)
     {
         DbContext.Remove(entity);
+    }
+
+    public async Task<IDbContextTransaction> BeginTransactionAsync()
+    {
+        return await DbContext.Database.BeginTransactionAsync();
     }
 }

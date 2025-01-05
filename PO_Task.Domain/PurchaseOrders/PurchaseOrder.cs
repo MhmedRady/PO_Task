@@ -3,6 +3,7 @@ using PO_Task.Domain.Common;
 using PO_Task.Domain.Items;
 using PO_Task.Domain.PurchaseOrders;
 using PO_Task.Domain.Users;
+using PO_Task.Domain.Users.Events;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 
@@ -28,22 +29,39 @@ public class PurchaseOrder : Entity<PurchaseOrderId>, IAggregateRoot
     public PurchaseOrderStatus Status { get; private set; }
     public ReadOnlyCollection<PurchaseOrderItem> PurchaseOrderItems => _items.AsReadOnly();
 
-    public PurchaseOrder CreateOrderInstance(
+    public static PurchaseOrder CreateOrderInstance(
             PurchaseOrderId purchaseOrderId,
-            UserId buyerId
+            UserId buyerId,
+            DateTime IssueDate,
+            IEnumerable<PurchaseOrderItem> purchaseOrderItems
         )
     {
         PurchaseOrder order = new PurchaseOrder(purchaseOrderId, buyerId);
-        order.Status = PurchaseOrderStatus.Ordered;
-        order.CreatedAt = DateTime.Now;
+        
+        order.PoNumber = CreatePoNumbre();
+        order.Status = PurchaseOrderStatus.Created;
+        order.CreatedAt = IssueDate;
+        foreach (var poItem in purchaseOrderItems) 
+        {
+            order.AddOrderItem(poItem);
+        }
+
+        order.RaiseDomainEvent(new PurchaseOrderCreatedDomainEvent { Id = purchaseOrderId.Value, PONumber = order.PoNumber });
+
         return order;
     }
 
-    public void AddOrderItem(string goodCode, Money price, int quantity)
+    public static string CreatePoNumbre()
     {
-        if (_items.Any(item => item.GoodCode == goodCode))
-            throw new InvalidOperationException($"Good with code {goodCode} already exists.");
-        _items.Add(PurchaseOrderItem.CreateInstance(Id, goodCode, price, quantity, _items.Count + 1));
+        var timeStaps = TimeSpan.FromMilliseconds(10);
+        return $"PO-{timeStaps}";
+    }
+
+    public void AddOrderItem(PurchaseOrderItem purchaseOrderItem)
+    {
+        if (_items.Any(item => item.GoodCode == purchaseOrderItem.GoodCode))
+            throw new InvalidOperationException($"Good with code {purchaseOrderItem.GoodCode} already exists.");
+        _items.Add(purchaseOrderItem);
         RecalculateTotalAmount();
     }
 
@@ -56,6 +74,7 @@ public class PurchaseOrder : Entity<PurchaseOrderId>, IAggregateRoot
     {
         _items.Remove(orderItem);
         _items.Add(orderItem);
+        RecalculateTotalAmount();
     }
 
 
@@ -67,6 +86,15 @@ public class PurchaseOrder : Entity<PurchaseOrderId>, IAggregateRoot
 
     private void RecalculateTotalAmount()
     {
-        TotalAmount = _items.Aggregate(Money.Zero(), (total, item) => total.Add(item.Price));
+        if (HasMultipleCurrencyTypes())
+            throw new BusinessRuleException([PurchaseOrderErrors.MultipleCurrencyTypes]);
+        TotalAmount = _items.Aggregate(Money.Zero(_items.First().Price.Currency), (total, item) => total.Add(item.Price));
+    }
+
+    public bool HasMultipleCurrencyTypes()
+    {
+        // Extract distinct currency codes and check if there is more than one
+        return _items
+            .Select(item => item.Price.Currency).Distinct().Count() > 1;
     }
 }

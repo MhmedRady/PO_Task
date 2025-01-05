@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using FluentValidation;
+using Microsoft.Extensions.DependencyInjection;
+using PO_Task.Application.Abstractions.Behaviors;
 using PO_Task.Application.Orders;
 using PO_Task.Domain.BuildingBlocks;
 using PO_Task.Domain.PurchaseOrders;
@@ -14,7 +16,14 @@ public static class DependencyInjection
             configuration =>
             {
                 configuration.RegisterServicesFromAssembly(typeof(DependencyInjection).Assembly);
+
+                configuration.AddOpenBehavior(typeof(LoggingBehavior<,>));
+
+                configuration.AddOpenBehavior(typeof(ValidationBehavior<,>));
             });
+
+        services.AddValidatorsFromAssembly(
+                    typeof(DependencyInjection).Assembly, includeInternalTypes: true);
 
         AddStrategies(services);
 

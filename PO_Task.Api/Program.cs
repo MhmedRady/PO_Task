@@ -39,6 +39,8 @@ app.UseSerilogRequestLogging();
 
 app.UseCustomExceptionHandler();
 
+
+
 app.UseAuthorization();
 
 app.MapControllers();

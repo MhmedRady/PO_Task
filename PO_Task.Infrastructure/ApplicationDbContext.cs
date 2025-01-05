@@ -5,6 +5,7 @@ using PO_Task.Application.Exceptions;
 using PO_Task.Domain.BuildingBlocks;
 using PO_Task.Domain.Items;
 using PO_Task.Domain.PurchaseOrders;
+using PO_Task.Domain.Users;
 using PO_Task.Infrastructure.Outbox;
 using System.Linq;
 
@@ -24,6 +25,7 @@ public sealed class ApplicationDbContext: DbContext, IUnitOfWork
         TypeNameHandling = TypeNameHandling.All
     };
 
+    public DbSet<User> user_profile { get; set; }
     public DbSet<PurchaseOrder> PurchaseOrders { get; set; }
     public DbSet<PurchaseOrderItem> PurchaseOrderItems { get; set; }
 

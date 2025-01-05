@@ -45,17 +45,19 @@ public sealed class PurchaseOrderItem : Entity<ItemId>, IAggregateRoot, ISoftDel
     public static PurchaseOrderItem CreateInstance(
         PurchaseOrderId purchaseOrderId,
         string goodCode,
-        Money price,
+        //int serialNumber,
         decimal quantity,
-        int serialNumber)
+        Money price
+        )
     {
+        var SerialNumber = new Random().Next(100000);
         return new PurchaseOrderItem(
             ItemId.CreateUnique(),
             purchaseOrderId,
             goodCode,
             price,
             quantity,
-            serialNumber
+            SerialNumber
             );
     }
 }

@@ -10,19 +10,20 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
 
     public void Configure(EntityTypeBuilder<User> builder)
     {
-        builder.HasKey(x => x.Id);
+/*        builder.HasKey(x => x.Id);
 
         builder.Property(i => i.Id)
             .ValueGeneratedNever() // UserId is a value object, not auto-generated
             .HasConversion(
                 id => id.Value, // Convert UserId to Guid for storage
-                value => UserId.Create(value));
+                value => UserId.Create(value));*/
 
         builder.OwnsOne(u =>
             u.Profile, profileBuilder =>
         {
             profileBuilder.ToTable("user_profile");
 
+            builder.HasKey(x => x.Id);
 
             profileBuilder.Property(p => p.FirstName)
                 .HasMaxLength(200)
@@ -39,6 +40,13 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User>
             profileBuilder.HasIndex(p => p.Email).IsUnique();
 
             builder.HasIndex(user => user.Id).IsUnique();
+
+            builder.Property(i => i.Id)
+            .ValueGeneratedNever() // UserId is a value object, not auto-generated
+            .HasConversion(
+                id => id.Value, // Convert UserId to Guid for storage
+                value => UserId.Create(value));
+
         });
     }
 }

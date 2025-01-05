@@ -21,8 +21,4 @@
     <ProjectReference Include="..\PO_Task.Infrastructure\PO_Task.Infrastructure.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Controllers\" />
-  </ItemGroup>
-
 </Project>

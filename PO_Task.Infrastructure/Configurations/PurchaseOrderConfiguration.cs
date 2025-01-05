@@ -77,8 +77,6 @@ namespace PO_Task.Infrastructure.Configurations
                       value => ItemId.Create(value)
                     );
 
-
-
                 // Index on PurchaseOrderId
                 ol.HasIndex(l => l.PurchaseOrderId);
 
