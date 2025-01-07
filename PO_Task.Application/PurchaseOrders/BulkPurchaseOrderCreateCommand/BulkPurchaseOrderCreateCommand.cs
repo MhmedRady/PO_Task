@@ -1,4 +1,5 @@
 using PO_Task.Application.Abstractions.Messaging;
+using PO_Task.Domain.PurchaseOrders;
 
 namespace PO_Task.Application.PurchaseOrders;
 

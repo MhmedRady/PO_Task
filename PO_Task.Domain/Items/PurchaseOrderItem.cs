@@ -4,7 +4,7 @@ using PO_Task.Domain.PurchaseOrders;
 
 namespace PO_Task.Domain.Items;
 
-public sealed class PurchaseOrderItem : Entity<ItemId>, IAggregateRoot, ISoftDelete
+public sealed class PurchaseOrderItem : Entity<ItemId>, IAggregateRoot
 {
 
     private PurchaseOrderItem(
@@ -33,14 +33,6 @@ public sealed class PurchaseOrderItem : Entity<ItemId>, IAggregateRoot, ISoftDel
     public PurchaseOrderId PurchaseOrderId { get; private set; }
     public Money Price { get; private set; }
     public decimal Quantity { get; private set; }
-
-    public DateTimeOffset? DeletedAt { get; set; }
-
-
-    public void MarkAsDeleted()
-    {
-        DeletedAt = DateTimeOffset.UtcNow;
-    }
 
     public static PurchaseOrderItem CreateInstance(
         PurchaseOrderId purchaseOrderId,

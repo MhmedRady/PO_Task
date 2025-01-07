@@ -15,29 +15,37 @@ using PO_Task.Domain.Common;
 namespace PO_Task.Application.PurchaseOrders;
 
 internal class AddPurchaseOrderCommandHandler(
-    IPurchaseOrderRepository _purchaseOrderRepository,
+    IPurchaseOrderRepository _PoRepository,
     IUserRepository _userRepository,
-    IUnitOfWork unitOfWork) : ICommandHandler<AddPurchaseOrderCommand, PurchaseOrderCreateCommandResult>
+    IUnitOfWork _unitOfWork) : ICommandHandler<AddPurchaseOrderCommand, PurchaseOrderCreateCommandResult>
 {
     public async Task<PurchaseOrderCreateCommandResult> Handle(AddPurchaseOrderCommand request, CancellationToken cancellationToken)
     {
-        var isExistUserId = _userRepository.GetByIdAsync(UserId.Create(request.PurchaserId))
-                ?? throw new ApplicationFlowException([AddPurchaseOrderCommandErrors.PurchaserIdNotFound]);
 
-        PurchaseOrderId purchaseOrderId = PurchaseOrderId.CreateUnique();
+        await _unitOfWork.BeginTransactionAsync(cancellationToken);
+        try
+        {
+            var isExistUserId = _userRepository.GetByIdAsync(UserId.Create(request.PurchaserId))
+                    ?? throw new ApplicationFlowException([AddPurchaseOrderCommandErrors.PurchaserIdNotFound]);
 
-        var purchaseOrder = PurchaseOrder.CreateOrderInstance(
-                purchaseOrderId,
-                UserId.Create(request.PurchaserId),
-                DateTime.Now,
-                request.PurchaseOrderItems.Select(poItem=> CreateOredItem(purchaseOrderId, poItem)).ToArray()
-            );
+            PurchaseOrderId purchaseOrderId = PurchaseOrderId.CreateUnique();
 
-        await _purchaseOrderRepository.AddAsync(purchaseOrder);
+            var purchaseOrder = PurchaseOrder.CreateOrderInstance(
+                    purchaseOrderId,
+                    UserId.Create(request.PurchaserId),
+                    DateTime.Now,
+                    request.PurchaseOrderItems.Select(poItem => CreateOredItem(purchaseOrderId, poItem)).ToArray()
+                );
 
-        await unitOfWork.SaveChangesAsync(cancellationToken);
+            await _PoRepository.AddAsync(purchaseOrder);
+            await _unitOfWork.CommitAsync(cancellationToken);
 
-        return new PurchaseOrderCreateCommandResult(purchaseOrder.CreatedAt, purchaseOrder.PoNumber);
+            return new PurchaseOrderCreateCommandResult(purchaseOrder.CreatedAt, purchaseOrder.PoNumber);
+        }
+        catch (Exception ex)
+        {
+            throw new ApplicationFlowException([new( nameof(AddPurchaseOrderCommandHandler), ex.Message)]);
+        }
     }
 
     private PurchaseOrderItem CreateOredItem(PurchaseOrderId purchaseOrderId,

@@ -1,18 +1,19 @@
 using PO_Task.Domain.BuildingBlocks;
 using PO_Task.Domain.Common;
 using PO_Task.Domain.Items;
-using PO_Task.Domain.PurchaseOrders;
 using PO_Task.Domain.Users;
 using PO_Task.Domain.Users.Events;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 
 
 namespace PO_Task.Domain.PurchaseOrders;
 
-public class PurchaseOrder : Entity<PurchaseOrderId>, IAggregateRoot
+
+public class PurchaseOrder : Entity<PurchaseOrderId>, IAggregateRoot, ISoftDelete
 {
     private readonly List<PurchaseOrderItem> _items = new();
+
+    
 
     private PurchaseOrder() { }
 
@@ -26,7 +27,10 @@ public class PurchaseOrder : Entity<PurchaseOrderId>, IAggregateRoot
     public string PoNumber { get; private set; }
     public DateTime CreatedAt { get; private set; }
     public Money TotalAmount { get; private set; }
+    // Is Deactivated? (on hold)
+    public bool IsDeactivated { get; private set; }
     public PurchaseOrderStatus Status { get; private set; }
+    public DateTimeOffset? DeletedAt { get; private set; }
     public ReadOnlyCollection<PurchaseOrderItem> PurchaseOrderItems => _items.AsReadOnly();
 
     public static PurchaseOrder CreateOrderInstance(
@@ -37,11 +41,12 @@ public class PurchaseOrder : Entity<PurchaseOrderId>, IAggregateRoot
         )
     {
         PurchaseOrder order = new PurchaseOrder(purchaseOrderId, buyerId);
-        
+
         order.PoNumber = CreatePoNumbre(IssueDate);
         order.Status = PurchaseOrderStatus.Created;
         order.CreatedAt = IssueDate;
-        foreach (var poItem in purchaseOrderItems) 
+
+        foreach (var poItem in purchaseOrderItems)
         {
             order.AddOrderItem(poItem);
         }
@@ -95,5 +100,10 @@ public class PurchaseOrder : Entity<PurchaseOrderId>, IAggregateRoot
         // Extract distinct currency codes and check if there is more than one
         return _items
             .Select(item => item.Price.Currency).Distinct().Count() > 1;
+    }
+
+    public void MarkAsDeleted()
+    {
+        DeletedAt = DateTimeOffset.UtcNow;
     }
 }

@@ -15,7 +15,5 @@ namespace PO_Task.Domain
         Task AddAsync(PurchaseOrder purchaseOrder);
         void Update(PurchaseOrder purchaseOrder);
         void Delete(PurchaseOrder purchaseOrder);
-
-        Task<IDbContextTransaction> BeginTransactionAsync();
     }
 }

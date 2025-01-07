@@ -30,6 +30,7 @@ internal abstract class Repository<T, TId> where T : Entity<TId> where TId : not
 
     public virtual async Task AddAsync(T entity)
     {
+       //EntityStateDetached(entity);
        await DbContext.AddAsync(entity);
     }
 
@@ -43,8 +44,9 @@ internal abstract class Repository<T, TId> where T : Entity<TId> where TId : not
         DbContext.Remove(entity);
     }
 
-    public async Task<IDbContextTransaction> BeginTransactionAsync()
+    private void EntityStateDetached(T Entity)
     {
-        return await DbContext.Database.BeginTransactionAsync();
+        DbContext.Entry(Entity).State = EntityState.Detached;
     }
+
 }

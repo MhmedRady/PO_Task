@@ -36,16 +36,19 @@ namespace PO_Task.Infrastructure.Configurations
             // Unique index for PoNumber
             builder.HasIndex(po => po.PoNumber).IsUnique();
 
+            builder.Property(l => l.IsDeactivated);
+            builder.Property(l => l.DeletedAt);
+
             // OwnsOne for Status (Value Object)
             builder.OwnsOne(o => o.Status, s =>
             {
                 s.Property(p => p.Value)
                  .HasColumnName("status_value")
-                 .IsRequired();
+                 .IsRequired().HasDefaultValue(PurchaseOrderStatus.Created.Value);
 
                 s.Property(p => p.Name)
                  .HasColumnName("status_name")
-                 .IsRequired();
+                 .IsRequired().HasDefaultValue(PurchaseOrderStatus.Created.Name);
             });
 
             // OwnsOne for TotalAmount (Money Value Object)
@@ -62,6 +65,7 @@ namespace PO_Task.Infrastructure.Configurations
                             .HasMaxLength(3)
                             .IsRequired();
             });
+
 
             // OwnsMany for PurchaseOrderItems
             builder.OwnsMany(o => o.PurchaseOrderItems, ol =>
@@ -106,8 +110,6 @@ namespace PO_Task.Infrastructure.Configurations
 
                 ol.Property(l => l.SerialNumber)
                   .IsRequired();
-
-                ol.Property(l => l.DeletedAt);
 
                 // Value object mapping for Price (Money)
                 ol.OwnsOne(

@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using Newtonsoft.Json;
 using PO_Task.Application.Abstractions;
 using PO_Task.Application.Exceptions;
@@ -13,7 +14,7 @@ namespace PO_Task.Infrastructure;
 
 public sealed class ApplicationDbContext: DbContext, IUnitOfWork
 {
-
+    private IDbContextTransaction _currentTransaction;
     private readonly IDateTimeProvider _dateTimeProvider;
     public ApplicationDbContext(DbContextOptions options, IDateTimeProvider dateTimeProvider) : base(options)
     {
@@ -60,7 +61,7 @@ public sealed class ApplicationDbContext: DbContext, IUnitOfWork
             .SelectMany(entity =>
             {
                 IReadOnlyList<IDomainEvent> domainEvents = entity.GetDomainEvents();
-
+                
                 entity.ClearDomainEvents();
 
                 return domainEvents;
@@ -73,5 +74,43 @@ public sealed class ApplicationDbContext: DbContext, IUnitOfWork
             .ToList();
 
         AddRange(outboxMessages);
+    }
+
+    public async Task BeginTransactionAsync(CancellationToken cancellationToken)
+    {
+        if(_currentTransaction != null)
+            return;
+        //base.ChangeTracker.Clear();
+        _currentTransaction = await base.Database.BeginTransactionAsync(cancellationToken);
+    }
+
+    public async Task CommitAsync(CancellationToken cancellationToken)
+    {
+        if (_currentTransaction == null)
+            throw new InvalidOperationException("No transaction started.");
+
+        // Save changes
+        //ChangeTracker.Clear()
+        try
+        {
+            await SaveChangesAsync();
+            await _currentTransaction.CommitAsync(cancellationToken);
+            await _currentTransaction.DisposeAsync();
+            _currentTransaction = null;
+        }
+        finally
+        {
+            
+        }
+    }
+
+    public async Task RollbackAsync(CancellationToken cancellationToken)
+    {
+        if (_currentTransaction == null)
+            return;
+
+        await _currentTransaction.RollbackAsync(cancellationToken);
+        await _currentTransaction.DisposeAsync();
+        _currentTransaction = null;
     }
 }
