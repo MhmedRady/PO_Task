@@ -1,5 +1,4 @@
-﻿
-namespace PO_Task.Domain.Users;
+﻿namespace PO_Task.Domain.Users;
 
 public interface IUserRepository
 {
@@ -7,5 +6,5 @@ public interface IUserRepository
         UserId userId,
         CancellationToken cancellationToken = default);
 
-    void Add(User user);
+    Task AddAsync(User purchaseOrder);
 }

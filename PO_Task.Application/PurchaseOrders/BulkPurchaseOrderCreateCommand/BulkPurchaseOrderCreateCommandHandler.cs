@@ -6,29 +6,28 @@ using PO_Task.Domain.Common;
 using PO_Task.Domain.Items;
 using PO_Task.Domain.PurchaseOrders;
 using PO_Task.Domain.Users;
-using System.Linq;
-using System.Transactions;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+using System.Net.Http.Headers;
 
 namespace PO_Task.Application.PurchaseOrders;
 
 // ReSharper disable once ClassNeverInstantiated.Global
-internal sealed class BulkPurchaseOrderCreateCommandHandler(
+public sealed class BulkPurchaseOrderCreateCommandHandler(
     IPurchaseOrderRepository _PoRepository,
     IUserRepository _userRepository,
-    IUnitOfWork _unitOfWork) : ICommandHandler<IEnumerable<BulkPurchaseOrderCreateCommand>, IEnumerable<Guid>>
+    IUnitOfWork _unitOfWork) : ICommandHandler<BulkPurchaseOrderCreateCommand,
+        IReadOnlyList<PurchaseOrderCreateCommandResult>>
 {
-    public async Task<IEnumerable<Guid>> Handle(
-        IEnumerable<BulkPurchaseOrderCreateCommand> request,
+    public async Task<IReadOnlyList<PurchaseOrderCreateCommandResult>> Handle(
+        BulkPurchaseOrderCreateCommand request,
         CancellationToken cancellationToken)
     {
 
-        var createdPurchaseOrderIds = new List<PurchaseOrder>();
+        var createdPurchaseOrderIds = new List<PurchaseOrderCreateCommandResult>();
         var errors = new List<ApplicationError>();
 
         using var poTransaction = await _PoRepository.BeginTransactionAsync();
 
-        foreach (var poRequest in request)
+        foreach (var poRequest in request.BulkPurchaseOrderCommands)
         {
             try
             {
@@ -42,7 +41,7 @@ internal sealed class BulkPurchaseOrderCreateCommandHandler(
 
 
                 PurchaseOrderId POrderId = PurchaseOrderId.CreateUnique();
-                var poItems = poRequest.PurchaseOrderItems.Select(itemCmd =>
+                var poItems = poRequest.PO_Items.Select(itemCmd =>
                     CreateOredItem(
                         purchaseOrderId: POrderId,
                         orderItemCommand: itemCmd
@@ -57,11 +56,11 @@ internal sealed class BulkPurchaseOrderCreateCommandHandler(
                 );
 
                 await _PoRepository.AddAsync(po);
-                createdPurchaseOrderIds.Add(po);
+                createdPurchaseOrderIds.Add(new(po.CreatedAt, po.PoNumber));
             }
-            catch(ApplicationFlowException ex)
+            catch (ApplicationFlowException ex)
             {
-                errors.Add(new ApplicationError($"{nameof(AddPurchaseOrderCommand)}.Purchaser Bulk Create", ex.Message);
+                errors.Add(new ApplicationError($"{nameof(AddPurchaseOrderCommand)}.Purchaser Bulk Create", ex.Message));
             }
             catch (Exception ex)
             {
@@ -69,23 +68,24 @@ internal sealed class BulkPurchaseOrderCreateCommandHandler(
                             $"{nameof(AddPurchaseOrderCommand)}.Purchaser Bulk Create",
                             $"For adding a Bulk Order Create , the Purchaser Error: {ex.Message}."));
             }
-
-            if (errors.Any())
-            {
-                await poTransaction.RollbackAsync(cancellationToken);
-
-                throw new ApplicationFlowException(
-                    errors.Select(e => e)
-                );
-            }
-
-
-            await poTransaction.CommitAsync(cancellationToken);
-
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-            return createdPurchaseOrderIds.Select(po=>po.Id.Value);
         }
+
+        if (errors.Any())
+        {
+            await poTransaction.RollbackAsync(cancellationToken);
+
+            throw new ApplicationFlowException(
+                errors.Select(e => e)
+            );
+        }
+
+        try
+        {
+            await poTransaction.CommitAsync(cancellationToken);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+        }catch(Exception ex) { }
+
+        return createdPurchaseOrderIds;
 
         /*        var isExistUserId = await _userRepository.GetByIdAsync(UserId.Create(request.PurchaserId))
                         ?? throw new ValidationException([AddPurchaseOrderCommandErrors.PurchaserIdNotFound]);
@@ -111,7 +111,7 @@ internal sealed class BulkPurchaseOrderCreateCommandHandler(
     }
 
     private PurchaseOrderItem CreateOredItem(PurchaseOrderId purchaseOrderId,
-        BulkOrderItemsCreateCommand orderItemCommand)
+        BulkPurchaseOrderItemCreateCommand orderItemCommand)
     {
         var orderItem = PurchaseOrderItem.CreateInstance(
             purchaseOrderId,

@@ -5,13 +5,11 @@ namespace PO_Task.Application.PurchaseOrders;
 
 public sealed record AddPurchaseOrderCommand(
         Guid PurchaserId,
-        PurchaseOrderItemCommand PurchaseOrderItem
-    ) : ICommand<Guid>;
+        IReadOnlyList<PurchaseOrderItemCommand> PurchaseOrderItems
+    ) : ICommand<PurchaseOrderCreateCommandResult>;
 
 public sealed record PurchaseOrderItemCommand(
-        Guid ItemId,
         string GoodCode,
-        int SerialNumber,
         decimal Quantity,
         decimal Price,
         string PriceCurrencyCode

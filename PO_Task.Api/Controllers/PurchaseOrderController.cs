@@ -1,4 +1,5 @@
 ﻿using Aswaq.Api.Controllers;
+using Azure.Core;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using PO_Task.Application.PurchaseOrders;
@@ -17,38 +18,20 @@ namespace PO_Task.Api.Controllers
             _sender = sender;
         }
 
-        [HttpPost]
-        public async Task<Guid> Add(AddPurchaseOrderRequest request)
+        [HttpPost("create")]
+        public async Task<IActionResult> Add([FromBody] AddPurchaseOrderRequest request)
         {
             AddPurchaseOrderCommand command = request;
-            Guid poId = await _sender.Send(command);
-            return poId;
+            var result = await _sender.Send(command);
+            return Ok(result);
         }
 
         [HttpPost("create-multiple")]
-        public async Task<IActionResult> CreateMultiple([FromBody] BulkPurchaseOrderCreateRequest request)
+        public async Task<IActionResult> CreateMultiple([FromBody] BulkPurchaseOrderCreateRequest requests)
         {
-            var listPOIDs = await _sender.Send(request);
-            return Ok(listPOIDs);
+            BulkPurchaseOrderCreateCommand bulkPurchaseOrderCommand = requests;
+            var listPOIDs = await _sender.Send(bulkPurchaseOrderCommand);
+            return !listPOIDs.Any()? BadRequest(): Ok(listPOIDs);
         }
-
-        [HttpPut("AddOrderItem/{OrderId:guid}")]
-        public async Task<bool> AddPurchaseOrderItem(Guid OrderId, AddPurchaseOrderItemRequest request)
-        {
-            
-            AddPurchaseOrderItemCommand command = request;
-            return await _sender.Send(command);
-        }
-
-        /*[HttpDelete("DeleteOrderItem/{id:guid}")]
-        public async Task<Guid> DeletePurchaseOrderItem(PurchaseOrderItemRequest request)
-        {
-            AddPurchaseOrderCommand command = request;
-
-            Guid poId = await _sender.Send(command);
-
-            return poId;
-        }*/
-
     }
 }

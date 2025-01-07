@@ -38,7 +38,7 @@ public class PurchaseOrder : Entity<PurchaseOrderId>, IAggregateRoot
     {
         PurchaseOrder order = new PurchaseOrder(purchaseOrderId, buyerId);
         
-        order.PoNumber = CreatePoNumbre();
+        order.PoNumber = CreatePoNumbre(IssueDate);
         order.Status = PurchaseOrderStatus.Created;
         order.CreatedAt = IssueDate;
         foreach (var poItem in purchaseOrderItems) 
@@ -51,9 +51,9 @@ public class PurchaseOrder : Entity<PurchaseOrderId>, IAggregateRoot
         return order;
     }
 
-    public static string CreatePoNumbre()
+    public static string CreatePoNumbre(DateTime createdDate)
     {
-        var timeStaps = TimeSpan.FromMilliseconds(10);
+        var timeStaps = Int64.Parse(createdDate.ToString("yyyyMMddHHmmss")) + new Random().Next(1000);
         return $"PO-{timeStaps}";
     }
 
@@ -76,7 +76,6 @@ public class PurchaseOrder : Entity<PurchaseOrderId>, IAggregateRoot
         _items.Add(orderItem);
         RecalculateTotalAmount();
     }
-
 
     public void ProcessNextStatus(IStatusTransitionStrategyFactory<PurchaseOrder, PurchaseOrderStatus> strategyFactory)
     {

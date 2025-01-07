@@ -3,30 +3,39 @@ using PO_Task.Application.PurchaseOrders;
 namespace PO_Task.Api.Controllers;
 
 public sealed record BulkPurchaseOrderCreateRequest(
-    Guid PurchaserId,
-    DateTime IssueDate,
-    IEnumerable<BulkPurchaseOrderItemRequest> PurchaseOrderItems
+    IReadOnlyList<BulkPurchaseOrderRequest> PurchaseOrderRequests
     )
 {
     public static implicit operator BulkPurchaseOrderCreateCommand(BulkPurchaseOrderCreateRequest request)
     {
         return new BulkPurchaseOrderCreateCommand(
-            request.PurchaserId,
-            request.IssueDate,
-            request.PurchaseOrderItems.Select(item => new BulkOrderItemsCreateCommand(
-                Guid.NewGuid(),
-                item.GoodCode,
-                item.SerialNumber,
-                item.Quantity,
-                item.Price,
-                item.PriceCurrencyCode
-            )));   
+                request.PurchaseOrderRequests.Select( poReuest =>
+                        new BulkPurchaseOrderCommand(
+                            PurchaserId : poReuest.PurchaserId,
+                            IssueDate : poReuest.IssueDate,
+                            PO_Items : poReuest.PurchaseOrderItems.Select( poItemRequest =>
+                                    new BulkPurchaseOrderItemCreateCommand(
+                                            poItemRequest.GoodCode,
+                                            poItemRequest.Quantity,
+                                            poItemRequest.Price,
+                                            poReuest.PriceCurrencyCode
+                                        )
+                                )
+                            )
+                    ).ToArray()
+            );   
     }
 }
 
+public sealed record BulkPurchaseOrderRequest(
+        Guid PurchaserId,
+        DateTime IssueDate,
+        string PriceCurrencyCode,
+        IEnumerable<BulkPurchaseOrderItemRequest> PurchaseOrderItems
+    );
+
 public sealed record BulkPurchaseOrderItemRequest(
     string GoodCode,
-    int SerialNumber,
+    //int SerialNumber,
     decimal Quantity,
-    decimal Price,
-    string PriceCurrencyCode);
+    decimal Price);

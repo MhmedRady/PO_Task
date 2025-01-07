@@ -1,18 +1,21 @@
 using PO_Task.Application.Abstractions.Messaging;
-using PO_Task.Domain.Users;
 
 namespace PO_Task.Application.PurchaseOrders;
 
+
 public sealed record BulkPurchaseOrderCreateCommand(
+    IReadOnlyList<BulkPurchaseOrderCommand> BulkPurchaseOrderCommands
+    ): ICommand<IReadOnlyList<PurchaseOrderCreateCommandResult>>;
+
+public sealed record BulkPurchaseOrderCommand(
         Guid PurchaserId,
         DateTime IssueDate,
-        IEnumerable<BulkOrderItemsCreateCommand> PurchaseOrderItems
+        IEnumerable<BulkPurchaseOrderItemCreateCommand> PO_Items
     ) : ICommand<IEnumerable<Guid>>;
 
-public sealed record BulkOrderItemsCreateCommand(
-        Guid ItemId,
+public sealed record BulkPurchaseOrderItemCreateCommand(
         string GoodCode,
-        int SerialNumber,
+        //int SerialNumber,
         decimal Quantity,
         decimal Price,
         string PriceCurrencyCode

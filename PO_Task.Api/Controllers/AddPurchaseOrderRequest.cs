@@ -4,28 +4,29 @@ namespace PO_Task.Api.Controllers;
 
 public sealed record AddPurchaseOrderRequest(
     Guid PurchaserId,
-    PurchaseOrderItemRequest PurchaseOrderItem
+    DateTime IssueDate,
+    string PriceCurrencyCode,
+    IReadOnlyList<AddPurchaseOrderItemRequest> PurchaseOrderItems
     )
 {
     public static implicit operator AddPurchaseOrderCommand(AddPurchaseOrderRequest request)
     {
         return new AddPurchaseOrderCommand(
-            request.PurchaserId,
-            new PurchaseOrderItemCommand(
-                Guid.NewGuid(),
-                request.PurchaseOrderItem.GoodCode,
-                request.PurchaseOrderItem.SerialNumber,
-                request.PurchaseOrderItem.Quantity,
-                request.PurchaseOrderItem.Price,
-                request.PurchaseOrderItem.PriceCurrencyCode
-            )
+                request.PurchaserId,
+                request.PurchaseOrderItems.Select(poItem =>
+                new PurchaseOrderItemCommand(
+                    poItem.GoodCode,
+                    poItem.Quantity,
+                    poItem.Price,
+                    request.PriceCurrencyCode
+                )
+            ).ToArray()
         );
     }
 }
 
-public sealed record PurchaseOrderItemRequest(
+public sealed record AddPurchaseOrderItemRequest(
     string GoodCode,
     int SerialNumber,
     decimal Quantity,
-    decimal Price,
-    string PriceCurrencyCode);
+    decimal Price);
