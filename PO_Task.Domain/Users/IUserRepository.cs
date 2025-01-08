@@ -1,4 +1,6 @@
-﻿namespace PO_Task.Domain.Users;
+﻿using System.Linq.Expressions;
+
+namespace PO_Task.Domain.Users;
 
 public interface IUserRepository
 {
@@ -7,4 +9,5 @@ public interface IUserRepository
         CancellationToken cancellationToken = default);
 
     Task AddAsync(User purchaseOrder);
+    IQueryable<User> GetBy(Expression<Func<User, bool>> expression);
 }

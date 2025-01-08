@@ -15,6 +15,7 @@ using PO_Task.Domain.Common;
 namespace PO_Task.Application.PurchaseOrders;
 
 internal class AddPurchaseOrderCommandHandler(
+    PoNumberGeneratorFactory _poNumberGeneratorFactory,
     IPurchaseOrderRepository _PoRepository,
     IUserRepository _userRepository,
     IUnitOfWork _unitOfWork) : ICommandHandler<AddPurchaseOrderCommand, PurchaseOrderCreateCommandResult>
@@ -25,16 +26,23 @@ internal class AddPurchaseOrderCommandHandler(
         await _unitOfWork.BeginTransactionAsync(cancellationToken);
         try
         {
-            var isExistUserId = _userRepository.GetByIdAsync(UserId.Create(request.PurchaserId))
-                    ?? throw new ApplicationFlowException([AddPurchaseOrderCommandErrors.PurchaserIdNotFound]);
 
             PurchaseOrderId purchaseOrderId = PurchaseOrderId.CreateUnique();
 
+            var issueDate = DateTime.Now;
+
+            var poNumber = _poNumberGeneratorFactory.GetGenerator(request.PONumberType).GeneratePoNumber(issueDate);
+
+            var poItems = request.PurchaseOrderItems.Select(poItem => CreateOredItem(purchaseOrderId, poItem)).ToArray();
+
+            if (!poItems.Any())
+                throw new ApplicationFlowException([AddPurchaseOrderCommandErrors.PurchaserItemIsEmpty]);
+
             var purchaseOrder = PurchaseOrder.CreateOrderInstance(
                     purchaseOrderId,
-                    UserId.Create(request.PurchaserId),
-                    DateTime.Now,
-                    request.PurchaseOrderItems.Select(poItem => CreateOredItem(purchaseOrderId, poItem)).ToArray()
+                    issueDate,
+                    poNumber,
+                    poItems
                 );
 
             await _PoRepository.AddAsync(purchaseOrder);

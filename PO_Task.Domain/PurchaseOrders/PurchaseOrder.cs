@@ -13,17 +13,13 @@ public class PurchaseOrder : Entity<PurchaseOrderId>, IAggregateRoot, ISoftDelet
 {
     private readonly List<PurchaseOrderItem> _items = new();
 
-    
-
     private PurchaseOrder() { }
 
-    private PurchaseOrder(PurchaseOrderId orderId, UserId purchaserId)
+    private PurchaseOrder(PurchaseOrderId orderId)
     {
         Id = orderId;
-        PurchaserId = purchaserId;
     }
 
-    public UserId PurchaserId { get; private set; }
     public string PoNumber { get; private set; }
     public DateTime CreatedAt { get; private set; }
     public Money TotalAmount { get; private set; }
@@ -35,14 +31,14 @@ public class PurchaseOrder : Entity<PurchaseOrderId>, IAggregateRoot, ISoftDelet
 
     public static PurchaseOrder CreateOrderInstance(
             PurchaseOrderId purchaseOrderId,
-            UserId buyerId,
             DateTime IssueDate,
+            string PoNumber,
             IEnumerable<PurchaseOrderItem> purchaseOrderItems
         )
     {
-        PurchaseOrder order = new PurchaseOrder(purchaseOrderId, buyerId);
+        PurchaseOrder order = new PurchaseOrder(purchaseOrderId);
 
-        order.PoNumber = CreatePoNumbre(IssueDate);
+        order.PoNumber = PoNumber;
         order.Status = PurchaseOrderStatus.Created;
         order.CreatedAt = IssueDate;
 

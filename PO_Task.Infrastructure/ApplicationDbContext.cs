@@ -37,7 +37,7 @@ public sealed class ApplicationDbContext: DbContext, IUnitOfWork
             AddDomainEventsAsOutboxMessages();
 
             int result = await base.SaveChangesAsync(cancellationToken);
-
+            
             return result;
         }
         catch (DbUpdateConcurrencyException ex)

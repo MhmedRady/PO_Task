@@ -9,8 +9,7 @@ public sealed record BulkPurchaseOrderCreateCommand(
     ): ICommand<IReadOnlyList<PurchaseOrderCreateCommandResult>>;
 
 public sealed record BulkPurchaseOrderCommand(
-        Guid PurchaserId,
-        DateTime IssueDate,
+        PoNumberGeneratorType PONumberType,
         IEnumerable<BulkPurchaseOrderItemCreateCommand> PO_Items
     ) : ICommand<IEnumerable<Guid>>;
 

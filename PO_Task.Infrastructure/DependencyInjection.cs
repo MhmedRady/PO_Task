@@ -1,9 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 using PO_Task.Application.Abstractions;
+using PO_Task.Application.PurchaseOrders;
 using PO_Task.Domain;
 using PO_Task.Domain.BuildingBlocks;
+using PO_Task.Domain.PurchaseOrders;
 using PO_Task.Domain.Users;
 using PO_Task.Infrastructure.Clock;
 using PO_Task.Infrastructure.Interceptors;
@@ -46,5 +49,10 @@ public static class DependencyInjection
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ApplicationDbContext>());
 
         services.AddSingleton<ISqlConnectionFactory>(_ => new SqlConnectionFactory(connectionString));
+
+        services.AddScoped<OldPoNumberGenerator>();
+        services.AddScoped<NewPoNumberGenerator>();
+        services.AddScoped<PoNumberGeneratorFactory>();
+
     }
 }

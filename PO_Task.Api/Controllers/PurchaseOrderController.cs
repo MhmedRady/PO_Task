@@ -1,5 +1,7 @@
 ﻿using Aswaq.Api.Controllers;
 using Azure.Core;
+using FluentValidation;
+using FluentValidation.Results;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using PO_Task.Application.PurchaseOrders;
@@ -29,6 +31,10 @@ namespace PO_Task.Api.Controllers
         [HttpPost("create-multiple")]
         public async Task<IActionResult> CreateMultiple([FromBody] BulkPurchaseOrderCreateRequest requests)
         {
+            ValidationResult validationResult = await new BulkPurchaseOrderCreateRequestValidator().ValidateAsync(requests);
+            if (!validationResult.IsValid)
+                throw new ValidationException(validationResult.Errors);
+
             BulkPurchaseOrderCreateCommand bulkPurchaseOrderCommand = requests;
             var listPOIDs = await _sender.Send(bulkPurchaseOrderCommand);
             return !listPOIDs.Any()? BadRequest(): Ok(listPOIDs);

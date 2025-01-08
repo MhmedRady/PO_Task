@@ -44,9 +44,4 @@ internal abstract class Repository<T, TId> where T : Entity<TId> where TId : not
         DbContext.Remove(entity);
     }
 
-    private void EntityStateDetached(T Entity)
-    {
-        DbContext.Entry(Entity).State = EntityState.Detached;
-    }
-
 }

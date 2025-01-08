@@ -26,12 +26,12 @@ namespace PO_Task.Infrastructure.Configurations
                   id => id.Value,
                   value => PurchaseOrderId.Create(value));
 
-            builder.HasIndex(o => o.PurchaserId);
+            /*builder.HasIndex(o => o.PurchaserId);
             builder.Property(i => i.PurchaserId)
                     .ValueGeneratedNever() 
                     .HasConversion(
                         id => id.Value,
-                        value => UserId.Create(value));
+                        value => UserId.Create(value));*/
 
             // Unique index for PoNumber
             builder.HasIndex(po => po.PoNumber).IsUnique();

@@ -17,4 +17,8 @@ public static class BulkPurchaseOrderCreateCommandErrors
     public static readonly ApplicationError NotFound = new(
         $"{nameof(BulkPurchaseOrderCreateCommand)}.Purchaser UserId",
         "For adding a Order, the Purchaser UserId must be existing.");
+
+    public static ApplicationError PurchaserItemIsEmpty(int index) => new(
+        $"{nameof(AddPurchaseOrderCommand)}. Index Order { index } Items Count",
+        "For adding a Order, the Purchases Order goods must be specified.");
 }

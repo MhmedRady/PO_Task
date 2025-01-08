@@ -2,6 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using PO_Task.Application.Abstractions.Behaviors;
 using PO_Task.Application.Orders;
+using PO_Task.Application.PurchaseOrders;
 using PO_Task.Domain.BuildingBlocks;
 using PO_Task.Domain.PurchaseOrders;
 using System.Reflection;

@@ -1,10 +1,10 @@
 using PO_Task.Application.PurchaseOrders;
+using PO_Task.Domain.PurchaseOrders;
 
 namespace PO_Task.Api.Controllers;
 
 public sealed record AddPurchaseOrderRequest(
-    Guid PurchaserId,
-    DateTime IssueDate,
+    PoNumberGeneratorType PONumberType,
     string PriceCurrencyCode,
     IReadOnlyList<AddPurchaseOrderItemRequest> PurchaseOrderItems
     )
@@ -12,7 +12,7 @@ public sealed record AddPurchaseOrderRequest(
     public static implicit operator AddPurchaseOrderCommand(AddPurchaseOrderRequest request)
     {
         return new AddPurchaseOrderCommand(
-                request.PurchaserId,
+                request.PONumberType,
                 request.PurchaseOrderItems.Select(poItem =>
                 new PurchaseOrderItemCommand(
                     poItem.GoodCode,
