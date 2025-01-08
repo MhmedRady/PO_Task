@@ -16,7 +16,7 @@ internal static class ApplicationBuilderExtensions
         try
         {
             dbContext.Database.Migrate();
-            await UsersSeeding(dbContext);
+            await SeedingPO.Populate1MillionPOsAsync(dbContext);
         }
         catch (Exception ex)
         {
@@ -37,18 +37,5 @@ internal static class ApplicationBuilderExtensions
         app.UseMiddleware<RequestContextLoggingMiddleware>();
 
         return app;
-    }
-
-    public static async Task UsersSeeding(ApplicationDbContext dbContext)
-    {
-        if (dbContext.user_profile.Any())
-            return;
-
-        for (int i = 1; i < 5; i++)
-        {
-            await dbContext.user_profile.AddAsync(User.CreateInstance(new("Mohamed"), new($"R{i}"), new($"MohamedR{i}@PO.com")));
-        }
-
-        await dbContext.SaveChangesAsync();
     }
 }
