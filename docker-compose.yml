@@ -10,27 +10,27 @@ services:
     environment:
       - ASPNETCORE_URLS=http://+:7188
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Server=PoSqlServer22,1433;Database=PO_TaskDB;User Id=sa;Password=admin@123;TrustServerCertificate=True;
+      - ConnectionStrings__DefaultConnection=Server=po-db;Database=PO_TaskDB;User Id=sa;Password=admin@123;TrustServerCertificate=True;
     depends_on:
-      - PoSqlServer22
+      - po-db
     networks:
       - appnetwork
 
-  PoSqlServer22:
+  po-db:
     image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: PoSqlServer22
+    container_name: po-db
     ports:
-      - "1433:1433" # Map SQL Server port to host
+      - "1434:1433" # Map SQL Server port to host
     environment:
       SA_PASSWORD: "admin@123"
       ACCEPT_EULA: "Y"
     networks:
       - appnetwork
     volumes:
-      - sqlserverdata:/var/opt/mssql
+      - posqlserverdata:/var/opt/mssql
 
 networks:
   appnetwork:
 
 volumes:
-  sqlserverdata:
+  posqlserverdata:
