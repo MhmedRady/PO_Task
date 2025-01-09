@@ -19,8 +19,8 @@ namespace PO_Task.Infrastructure
             int inserted = 0;
             try
             {
-                /*if (await db.PurchaseOrders.AnyAsync())
-                    return;*/
+                if (await db.PurchaseOrders.AnyAsync())
+                    return;
 
                 while (inserted < total)
                 {

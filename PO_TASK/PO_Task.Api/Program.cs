@@ -1,6 +1,9 @@
+using Microsoft.Extensions.Configuration;
 using PO_Task.Api.Extensions;
 using PO_Task.Application;
+using PO_Task.Domain.BuildingBlocks;
 using PO_Task.Infrastructure;
+using PO_Task.Infrastructure.RabbitMQ;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -36,10 +39,12 @@ app.UseHttpsRedirection();
 app.UseRequestContextLogging();
 
 app.UseSerilogRequestLogging();
-
 app.UseCustomExceptionHandler();
 
+var rabbitMQConfig = app.Configuration.GetSection("RabbitMQ").Get<RabbitMQConfig>();
 
+var rabbitMQConsumer = app.Services.GetRequiredService<RabbitMQConsumer>();
+await Task.Run(() => rabbitMQConsumer.StartListening(rabbitMQConfig));
 
 app.UseAuthorization();
 

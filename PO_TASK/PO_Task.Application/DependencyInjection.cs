@@ -1,4 +1,5 @@
 ﻿using FluentValidation;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using PO_Task.Application.Abstractions.Behaviors;
 using PO_Task.Application.Orders;
@@ -30,6 +31,7 @@ public static class DependencyInjection
 
         services.AddScoped<IStatusTransitionStrategyFactory<PurchaseOrder, PurchaseOrderStatus>, StatusTransitionStrategyFactory>();
 
+
         return services;
     }
 
@@ -54,4 +56,6 @@ public static class DependencyInjection
             }
         }
     }
+
+
 }

@@ -10,6 +10,7 @@ using PO_Task.Domain.PurchaseOrders;
 using PO_Task.Domain.Users;
 using PO_Task.Infrastructure.Clock;
 using PO_Task.Infrastructure.Interceptors;
+using PO_Task.Infrastructure.RabbitMQ;
 using PO_Task.Infrastructure.Repositories;
 
 namespace PO_Task.Infrastructure;
@@ -49,6 +50,8 @@ public static class DependencyInjection
         services.AddScoped<IUnitOfWork>(sp => sp.GetRequiredService<ApplicationDbContext>());
 
         services.AddSingleton<ISqlConnectionFactory>(_ => new SqlConnectionFactory(connectionString));
+
+        services.AddSingleton<RabbitMQConsumer>();
 
         services.AddScoped<OldPoNumberGenerator>();
         services.AddScoped<NewPoNumberGenerator>();

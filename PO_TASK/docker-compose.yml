@@ -11,26 +11,29 @@ services:
       - ASPNETCORE_URLS=http://+:7188
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__DefaultConnection=Server=po-db;Database=PO_TaskDB;User Id=sa;Password=admin@123;TrustServerCertificate=True;
+      - RabbitMQ__Host=rabbitmq-demo
+      - RabbitMQ__Username=guest
+      - RabbitMQ__Password=guest
     depends_on:
       - po-db
     networks:
-      - appnetwork
+      - po_demo_appnetwork
 
   po-db:
     image: mcr.microsoft.com/mssql/server:2022-latest
     container_name: po-db
     ports:
-      - "1434:1433" # Map SQL Server port to host
+      - "1434:1433"
     environment:
       SA_PASSWORD: "admin@123"
       ACCEPT_EULA: "Y"
     networks:
-      - appnetwork
+      - po_demo_appnetwork
     volumes:
       - posqlserverdata:/var/opt/mssql
 
 networks:
-  appnetwork:
+  po_demo_appnetwork:
 
 volumes:
   posqlserverdata:

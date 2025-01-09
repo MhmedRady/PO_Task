@@ -1,0 +1,16 @@
+version: '3.8'
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq-demo
+    ports:
+      - "5672:5672"   # For AMQP
+      - "15672:15672" # RabbitMQ Management dashboard
+    environment:
+      RABBITMQ_DEFAULT_USER: "guest"
+      RABBITMQ_DEFAULT_PASS: "guest"
+    networks:
+      - po_demo_appnetwork
+
+networks:
+  po_demo_appnetwork:
